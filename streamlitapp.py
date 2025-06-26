@@ -8,7 +8,7 @@ Original file is located at
 """
 
 # Install required packages
-!pip install streamlit opencv-python-headless matplotlib pillow pyngrok
+pip install streamlit opencv-python-headless matplotlib pillow pyngrok
 import streamlit as st
 import numpy as np
 import cv2
