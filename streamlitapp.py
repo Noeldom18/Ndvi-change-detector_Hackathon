@@ -7,8 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/1EOIRZ-S86F-hK3kwM9ZRNbjw_M5EHXDa
 """
 
-# Install required packages
-pip install streamlit opencv-python-headless matplotlib pillow pyngrok
+
 import streamlit as st
 import numpy as np
 import cv2
