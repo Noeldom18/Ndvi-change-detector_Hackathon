@@ -1,35 +1,97 @@
-# 🌿 NDVI Change Detection Web App
+# 🌱 Crop Field Analysis using Deep Learning
 
-This project provides a **Streamlit-based web app** to analyze NDVI (Normalized Difference Vegetation Index) screenshots taken from agricultural fields on two different days. It helps detect areas of **plant growth**, **stress**, and **no change** over time using image comparison.
+## 📌 Project Overview
+This project applies **Computer Vision and Machine Learning** to analyze crop fields using **RGB and Multispectral images**.  
+The objective is to detect crop health variations and support **precision farming** by enabling data-driven decision-making.  
 
----
-
-## 📌 Project Purpose
-
-To assist **farmers**, **agronomists**, and **researchers** in:
-
-- Tracking plant health using drone NDVI screenshots
-- Visually analyzing temporal changes in vegetation
-- Detecting early signs of plant stress
+By leveraging **YOLOv8**, the model learns features from crop images (color, texture, spectral signatures) and maps them into numerical values for training and prediction.  
+The system also integrates with a **Streamlit web app** for easy NDVI estimation and visualization.
 
 ---
 
-## 💻 How to Run (Using Google Colab + ngrok)
+## 🎯 Objectives
+- Detect crop regions and classify health conditions using drone imagery.  
+- Compare the effectiveness of **RGB vs Multispectral** data for crop monitoring.  
+- Provide an end-to-end tool for **NDVI estimation and precision agriculture**.  
 
-This web app is designed to be run on **Google Colab**, and hosted using **ngrok** for public access.
+---
 
-### 🚀 Steps to Run the App:
+## 🚀 Methodology
 
-1. **Open Google Colab**
+1. **Data Collection & Preprocessing**
+   - Drone-based **RGB and Multispectral images** captured from crop fields.  
+   - Used **PIX4Dfields** trial version to generate NDVI ground-truth maps.  
+   - Preprocessing steps included resizing, normalization, and data augmentation.  
 
-   👉 Go to: [https://colab.research.google.com](https://colab.research.google.com)
+2. **Model Training**
+   - Adapted **YOLOv8** as a feature extractor.  
+   - Mapped image features to NDVI values using supervised regression.  
+   - Training executed in **Google Colab** with GPU acceleration.  
 
-2. **Upload Files**
+3. **Evaluation**
+   - Metrics: **Precision, Recall, F1-score, RMSE (for NDVI regression)**.  
+   - Compared NDVI predicted by the model with NDVI obtained via PIX4Dfields.  
 
-   - Upload `ndvi_app.py` (main Streamlit app)
-   - Paste and run the Colab setup code (provided below)
+4. **Deployment**
+   - Developed a **Streamlit web app** where users upload drone images.  
+   - The trained AI model processes images and outputs **NDVI index values**.  
 
-3. **Install Required Packages**
+---
 
-   ```bash
-   !pip install streamlit opencv-python-headless matplotlib pillow pyngrok
+## 📊 Results
+- The model successfully learned to predict NDVI from both RGB and Multispectral images.  
+- **Multispectral input improved prediction accuracy** compared to RGB-only.  
+- The Streamlit app enabled **real-time NDVI estimation** for crop health monitoring.  
+
+---
+
+## 🛠 Tech Stack
+- **Programming Language**: Python  
+- **Frameworks/Libraries**:  
+  - PyTorch  
+  - Ultralytics YOLOv8  
+  - OpenCV  
+  - NumPy, Pandas, Matplotlib  
+  - Streamlit (for deployment)  
+- **Tools**:  
+  - Google Colab (training)  
+  - PIX4Dfields (NDVI ground truth)  
+  - GitHub for version control  
+
+---
+
+## 📂 Repository Structure
+├── report/ # Project report
+├── app/ # Streamlit app files
+└── README.md # Project documentation
+
+
+---
+
+## ⚡ Installation & Usage
+
+### 1️⃣ Clone the repository
+```bash
+git clone https://github.com/yourusername/crop-field-analysis.git
+cd crop-field-analysis
+
+pip install -r requirements.txt
+yolo task=detect mode=train data=config.yaml model=yolov8n.pt epochs=50 imgsz=640
+yolo task=detect mode=predict model=path/to/best.pt source=data/test_images
+streamlit run app/app.py
+
+📌 Future Work
+
+Extend to multi-temporal crop monitoring across growth stages.
+
+Explore Vision Transformers (ViTs) for improved feature learning.
+
+Integrate GIS mapping and live drone feeds.
+
+🙌 Acknowledgements
+
+Dataset providers and open-source contributors.
+
+Ultralytics team for YOLOv8.
+
+PIX4Dfields for NDVI baseline generation.
