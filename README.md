@@ -62,9 +62,9 @@ The system also integrates with a **Streamlit web app** for easy NDVI estimation
 
 ## 📂 Repository Structure
 ├── Deep Learning Model Code
-├── report/ # Project report
-├── app/ # Streamlit app files
-└── README.md # Project documentation
+├── report/ Project report
+├── app/ Streamlit app files
+└── README.md Project documentation
 
 
 ---
