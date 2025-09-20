@@ -79,8 +79,8 @@ pip install -r requirements.txt
 yolo task=detect mode=train data=config.yaml model=yolov8n.pt epochs=50 imgsz=640
 yolo task=detect mode=predict model=path/to/best.pt source=data/test_images
 streamlit run app/app.py
-
-📌 Future Work
+```
+## 📌 Future Work
 
 Extend to multi-temporal crop monitoring across growth stages.
 
@@ -88,7 +88,7 @@ Explore Vision Transformers (ViTs) for improved feature learning.
 
 Integrate GIS mapping and live drone feeds.
 
-🙌 Acknowledgements
+## 🙌 Acknowledgements
 
 Dataset providers and open-source contributors.
 
