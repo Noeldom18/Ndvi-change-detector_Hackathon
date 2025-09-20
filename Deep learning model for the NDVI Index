@@ -1,0 +1,110 @@
+# ndvi_regression.py
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import Dataset, DataLoader
+from torchvision import transforms, models
+from PIL import Image
+import os
+import pandas as pd
+
+# -------------------------------
+# Custom Dataset
+# -------------------------------
+class CropDataset(Dataset):
+    def __init__(self, csv_file, img_dir, transform=None):
+        """
+        Args:
+            csv_file (string): Path to CSV file with [image_name, ndvi_value].
+            img_dir (string): Directory with images.
+            transform (callable, optional): Optional transform to be applied.
+        """
+        self.data = pd.read_csv(csv_file)
+        self.img_dir = img_dir
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img_name = os.path.join(self.img_dir, self.data.iloc[idx, 0])
+        image = Image.open(img_name).convert("RGB")
+        ndvi = torch.tensor(self.data.iloc[idx, 1], dtype=torch.float32)
+
+        if self.transform:
+            image = self.transform(image)
+
+        return image, ndvi
+
+# -------------------------------
+# Model Definition
+# -------------------------------
+class NDVIRegressor(nn.Module):
+    def __init__(self):
+        super(NDVIRegressor, self).__init__()
+        # Pretrained ResNet18 as feature extractor
+        self.resnet = models.resnet18(pretrained=True)
+        # Replace final layer with regression head
+        self.resnet.fc = nn.Linear(self.resnet.fc.in_features, 1)
+
+    def forward(self, x):
+        return self.resnet(x)
+
+# -------------------------------
+# Training Function
+# -------------------------------
+def train_model(model, dataloader, criterion, optimizer, device, epochs=10):
+    model.train()
+    for epoch in range(epochs):
+        running_loss = 0.0
+        for images, labels in dataloader:
+            images, labels = images.to(device), labels.to(device)
+
+            optimizer.zero_grad()
+            outputs = model(images).squeeze()  # (batch_size)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            running_loss += loss.item() * images.size(0)
+
+        epoch_loss = running_loss / len(dataloader.dataset)
+        print(f"Epoch {epoch+1}/{epochs}, Loss: {epoch_loss:.4f}")
+
+# -------------------------------
+# Main Script
+# -------------------------------
+if __name__ == "__main__":
+    # Config
+    img_dir = "data/images/"
+    csv_file = "data/labels.csv"  # CSV format: image_name,ndvi_value
+    batch_size = 16
+    lr = 1e-4
+    epochs = 20
+
+    # Device
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # Transformations
+    transform = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], 
+                             [0.229, 0.224, 0.225])
+    ])
+
+    # Dataset & Dataloader
+    dataset = CropDataset(csv_file, img_dir, transform=transform)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+    # Model, Loss, Optimizer
+    model = NDVIRegressor().to(device)
+    criterion = nn.MSELoss()  # Regression loss
+    optimizer = optim.Adam(model.parameters(), lr=lr)
+
+    # Train
+    train_model(model, dataloader, criterion, optimizer, device, epochs)
+
+    # Save model
+    torch.save(model.state_dict(), "ndvi_regressor.pth")
+    print("✅ Model training complete. Saved as ndvi_regressor.pth")
